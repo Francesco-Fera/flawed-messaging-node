@@ -4,6 +4,7 @@ import Redis from "ioredis";
 import { nanoid } from "nanoid";
 import mongoose from "mongoose";
 import Notification from "../models/notification.js";
+import { broadcastNotification } from "../../server.js";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 const REDIS_URI = process.env.REDIS_URI;
@@ -40,6 +41,12 @@ router.get("/", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+router.post("/broadcast", (req, res) => {
+  console.log("router:", req.body);
+  broadcastNotification(req.body);
+  res.sendStatus(204);
 });
 
 export default router;

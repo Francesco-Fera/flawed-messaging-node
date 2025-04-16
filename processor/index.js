@@ -25,7 +25,7 @@ const processNotification = async (raw) => {
         console.log(
           `Attempt number ${error.attemptNumber} failed. ${error.retriesLeft} retries left`
         );
-        await Notification.findOneAndUpdate(
+        const updatedNotification = await Notification.findOneAndUpdate(
           { id: data.id },
           {
             $set: { status: "retrying", lastError: error.message },
@@ -33,18 +33,34 @@ const processNotification = async (raw) => {
           },
           { upsert: true }
         );
+
+        // Notify WebSocket server
+        await axios.post(
+          "http://api:3000/api/notifications/broadcast",
+          updatedNotification
+        );
       },
     });
-    await Notification.findOneAndUpdate(
+    const updatedNotification = await Notification.findOneAndUpdate(
       { id: data.id },
       { $set: { status: "sent" } },
       { upsert: true }
     );
+    // Notify WebSocket server
+    await axios.post(
+      "http://api:3000/api/notifications/broadcast",
+      updatedNotification
+    );
   } catch (error) {
     console.error("faild to send notification: ", error.message);
-    await Notification.findOneAndUpdate(
+    const updatedNotification = await Notification.findOneAndUpdate(
       { id: data.id },
       { $set: { status: "failed", lastError: error.message } }
+    );
+    // Notify WebSocket server
+    await axios.post(
+      "http://api:3000/api/notifications/broadcast",
+      updatedNotification
     );
   }
 };

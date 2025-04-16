@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("/api/notifications")
-      .then((res) => setNotifications(res.data))
-      .catch((err) => console.error("Failed to fetch notifications:", err));
+    const ws = new WebSocket("ws://" + window.location.host + "/ws");
+    // const ws = new WebSocket(`ws://${window.location.hostname}:8080/ws`)
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("firsty", data);
+      setNotifications((prev) => {
+        console.log("prev", prev);
+
+        // Update or add the notification
+        const existing = prev.find((n) => n.id === data.id);
+        if (existing) {
+          return prev.map((n) => (n.id === data.id ? data : n));
+        }
+        return [data, ...prev];
+      });
+    };
+
+    return () => ws.close();
   }, []);
 
   return (
