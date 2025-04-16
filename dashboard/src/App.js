@@ -1,25 +1,57 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-function App() {
+const Notifications = () => {
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    axios
+      .get("/api/notifications")
+      .then((res) => setNotifications(res.data))
+      .catch((err) => console.error("Failed to fetch notifications:", err));
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">📬 Notifications</h1>
+      <table className="table-auto w-full text-left border border-gray-200 shadow-md rounded-md">
+        <thead className="bg-gray-100 text-gray-700">
+          <tr>
+            <th className="px-4 py-2">ID</th>
+            <th className="px-4 py-2">To</th>
+            <th className="px-4 py-2">Type</th>
+            <th className="px-4 py-2">Status</th>
+            <th className="px-4 py-2">Attempts</th>
+            <th className="px-4 py-2">Last Error</th>
+          </tr>
+        </thead>
+        <tbody>
+          {notifications.map((n) => (
+            <tr key={n.id} className="border-t">
+              <td className="px-4 py-2 text-xs font-mono">{n.id}</td>
+              <td className="px-4 py-2">{n.to || "-"}</td>
+              <td className="px-4 py-2">{n.type}</td>
+              <td
+                className={`px-4 py-2 font-semibold ${
+                  n.status === "sent"
+                    ? "text-green-600"
+                    : n.status === "failed"
+                    ? "text-red-600"
+                    : "text-yellow-500"
+                }`}
+              >
+                {n.status}
+              </td>
+              <td className="px-4 py-2">{n.attempts ?? 0}</td>
+              <td className="px-4 py-2 text-sm text-gray-500">
+                {n.lastError ?? "-"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
 
-export default App;
+export default Notifications;

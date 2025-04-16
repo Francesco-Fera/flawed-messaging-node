@@ -2,9 +2,14 @@ import { z } from "zod";
 import express from "express";
 import Redis from "ioredis";
 import { nanoid } from "nanoid";
+import mongoose from "mongoose";
+import Notification from "../models/notification.js";
 
+const MONGODB_URI = process.env.MONGODB_URI;
 const REDIS_URI = process.env.REDIS_URI;
+
 const redis = new Redis(REDIS_URI);
+mongoose.connect(MONGODB_URI);
 
 const NotificationSchema = z.object({
   type: z.enum(["email", "sms"]),
