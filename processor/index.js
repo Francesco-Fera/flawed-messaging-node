@@ -2,17 +2,20 @@ import Redis from "ioredis";
 import axios from "axios";
 import pRetry from "p-retry";
 import Notification from "./src/models/notification.js";
+import mongoose from "mongoose";
 
 const REDIS_URI = process.env.REDIS_URI;
+const MONGODB_URI = process.env.MONGODB_URI;
 
 const redis = new Redis(REDIS_URI);
+mongoose.connect(MONGODB_URI);
 
 const processNotification = async (raw) => {
   const data = JSON.parse(raw);
   console.log("Processing: ", data);
 
   const sendNotification = async () => {
-    await axios.post("http://localhost:1337/send", data, { timeout: 3000 });
+    await axios.post("http://mock-api:1337/send", data, { timeout: 3000 });
   };
 
   try {
@@ -32,12 +35,11 @@ const processNotification = async (raw) => {
         );
       },
     });
-    const savedNot = await Notification.findOneAndUpdate(
+    await Notification.findOneAndUpdate(
       { id: data.id },
       { $set: { status: "sent" } },
       { upsert: true }
     );
-    console.log("saved: ", savedNot);
   } catch (error) {
     console.error("faild to send notification: ", error.message);
     await Notification.findOneAndUpdate(

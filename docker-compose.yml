@@ -46,6 +46,8 @@ services:
       - redis
     networks:
       - app-network
+      - notification-network
+
 
   dashboard:
     build:
