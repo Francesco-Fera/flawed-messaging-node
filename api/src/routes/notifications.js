@@ -12,8 +12,10 @@ router.post("/", async (req, redis) => {
   try {
     const data = req.body;
     const id = nanoid();
+    console.log(data, id);
+    res.status(202).json({ status: "queued", id });
 
-    await redis.lpush("notificationsQueue", JSON.stringify({ id, ...data }));
+    //await redis.lpush("notificationsQueue", JSON.stringify({ id, ...data }));
   } catch (error) {
     console.error(error);
     res.status(400).json({ error: error.message });
