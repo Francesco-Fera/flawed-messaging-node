@@ -31,11 +31,12 @@ const processNotification = async (raw) => {
         );
       },
     });
-    await Notification.findOneAndUpdate(
+    const savedNot = await Notification.findOneAndUpdate(
       { id: data.id },
       { $set: { status: "sent" } },
       { upsert: true }
     );
+    console.log("saved: ", savedNot);
   } catch (error) {
     console.error("faild to send notification: ", error.message);
     await Notification.findOneAndUpdate(
