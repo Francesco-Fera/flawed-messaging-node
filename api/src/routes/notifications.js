@@ -3,12 +3,12 @@ import express from "express";
 import Redis from "ioredis";
 import { nanoid } from "nanoid";
 
-const REDIS_URI = process.env.REDIS_URI;
+// const REDIS_URI = process.env.REDIS_URI;
+// const redis = new Redis(REDIS_URI);
 
 const router = express.Router();
-const redis = new Redis(REDIS_URI);
 
-router.post("/", async (req, redis) => {
+router.post("/", async (req, res) => {
   try {
     const data = req.body;
     const id = nanoid();
