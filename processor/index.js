@@ -7,9 +7,42 @@ const REDIS_URI = process.env.REDIS_URI;
 const redis = new Redis(REDIS_URI);
 
 const processNotification = async (raw) => {
-  // to implement
   const data = JSON.parse(raw);
   console.log("Processing: ", data);
+
+  const sendNotification = async () => {
+    await axios.post("http://localhost:1337/send", data, { timeout: 3000 });
+  };
+
+  try {
+    await pRetry(sendNotification, {
+      retries: 5,
+      onFailedAttempt: async (error) => {
+        console.log(
+          `Attempt number ${error.attemptNumber} failed. ${error.retriesLeft} retries left`
+        );
+        await Notification.findOneAndUpdate(
+          { id: data.id },
+          {
+            $set: { status: "retrying", lastError: error.message },
+            $inc: { attempts: 1 },
+          },
+          { upsert: true }
+        );
+      },
+    });
+    await Notification.findOneAndUpdate(
+      { id: data.id },
+      { $set: { status: "sent" } },
+      { upsert: true }
+    );
+  } catch (error) {
+    console.error("faild to send notification: ", error.message);
+    await Notification.findOneAndUpdate(
+      { id: data.id },
+      { $set: { status: "failed", lastError: err.message } }
+    );
+  }
 };
 
 const run = async () => {
