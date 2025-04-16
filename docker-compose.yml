@@ -53,6 +53,7 @@ services:
     depends_on:
       - api
     networks:
+      - app-network 
       - notification-network
 
   mock-api:
