@@ -1,6 +1,7 @@
 import Redis from "ioredis";
 import axios from "axios";
 import pRetry from "p-retry";
+import Notification from "./src/models/notification.js";
 
 const REDIS_URI = process.env.REDIS_URI;
 
@@ -41,7 +42,7 @@ const processNotification = async (raw) => {
     console.error("faild to send notification: ", error.message);
     await Notification.findOneAndUpdate(
       { id: data.id },
-      { $set: { status: "failed", lastError: err.message } }
+      { $set: { status: "failed", lastError: error.message } }
     );
   }
 };
