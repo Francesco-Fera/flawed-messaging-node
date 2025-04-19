@@ -21,7 +21,7 @@ wss.on("connection", (ws) => {
 });
 
 export const broadcastNotification = (data) => {
-  console.log("server funct", data);
+  // console.log("server funct", data);
   sockets.forEach((ws) => {
     if (ws.readyState === 1) ws.send(JSON.stringify(data));
   });

@@ -12,7 +12,7 @@ mongoose.connect(MONGODB_URI);
 
 const processNotification = async (raw) => {
   const data = JSON.parse(raw);
-  console.log("Processing: ", data);
+  // console.log("Processing: ", data);
 
   const sendNotification = async () => {
     await axios.post("http://mock-api:1337/send", data, { timeout: 3000 });
